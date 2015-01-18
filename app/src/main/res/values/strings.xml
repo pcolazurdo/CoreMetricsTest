@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">CoreMetrics-Test</string>
+    <string name="title_item_detail">Item Detail</string>
+    <string name="hello_world">Hello World!</string>
+    <string name="log_text">Small Text</string>
+    <string name="title_activity_main">Activity Main</string>
+
+</resources>
