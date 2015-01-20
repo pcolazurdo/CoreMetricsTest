@@ -5,8 +5,11 @@ import android.util.Log;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -101,7 +104,8 @@ public class TaggingRequest {
 	    addParam("cjsid", sessionID);
 
         try {
-            executeInNewThread();
+            //executeInNewThread();
+            executeWithParamsInNewThread();
         }
         catch (Exception e) {
             Log.d("Exception:", e.toString());
@@ -121,7 +125,7 @@ public class TaggingRequest {
 		setUrl(tempHost);
 		setMethod("GET");
 		
-		execute();
+		executeInNewThread();
 	    
 		//Log.w("BOT_PV", tempHost);
 	    //Log.w("BOT_PV", "BOT_PV");
@@ -302,16 +306,51 @@ public class TaggingRequest {
         }).start();
     }
 
+    public void executeWithParamsInNewThread() {
+        new Thread(new Runnable() {
+            public void run() {
+                executeWithParams();
+            }
+        }).start();
+    }
+
+    public void executeWithParams() {
+        BasicHttpParams localParams = new BasicHttpParams();
+
+        try {
+            for (NameValuePair nvp : this.params) {
+                Log.d("params: ", nvp.getName() + "=" + nvp.getValue());
+                localParams.setParameter(nvp.getName(), nvp.getValue());
+            };
+
+            this.getRequest = new HttpGet(this.getUrl());
+            this.getRequest.setParams(localParams);
+
+            Log.d("executeWithParams()", this.getRequest.getURI().toString() );
+
+            this.httpClient.execute(this.getRequest);
+        } catch (ClientProtocolException e) {
+            this.result = e.getMessage();
+
+            //Log.w("TEST","PROTOCOL EXCEPTION");
+        } catch (IOException e) {
+            //Log.w("TEST","IO EXCEPTION");
+
+            this.result = e.toString();
+            //Log.w("TEST",this.result);
+        }
+    }
+
 	public void execute() {
 		try {
 			if (this.method.compareToIgnoreCase("GET") == 0) {
-				
-				//Log.w("TEST","TOP EXECUTE GET");
-				
-				this.getRequest = new HttpGet(this.getUrl());
-				
-				//Log.w("TEST","BEFORE GET REQUEST");
-				this.httpClient.execute(this.getRequest);
+
+
+				Log.d("execute()", this.getUrl());
+                this.getRequest = new HttpGet(this.getUrl());
+
+                //Log.w("TEST","BEFORE GET REQUEST");
+                this.httpClient.execute(this.getRequest);
 				//Log.w("TEST","AFTER GET REQUEST");
 			}/*else if(this.method.compareToIgnoreCase("POST") == 0) {
 				this.postRequest = new HttpPost(this.getUrl());
@@ -330,13 +369,14 @@ public class TaggingRequest {
 		} catch (ClientProtocolException e) {
 			this.result = e.getMessage();
 			
-			//Log.w("TEST","PROTOCOL EXCEPTION");
+			Log.w("Exception",e.toString());
 		} catch (IOException e) {
-			//Log.w("TEST","IO EXCEPTION");
 			
 			this.result = e.toString();
-			//Log.w("TEST",this.result);
+			Log.w("Exception",this.result);
 			
-		}
+		} catch (Exception e) {
+            Log.w("Exception",e.toString());
+        }
 	}
 }

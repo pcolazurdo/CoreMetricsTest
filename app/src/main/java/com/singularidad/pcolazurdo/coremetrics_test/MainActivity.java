@@ -46,6 +46,16 @@ public class MainActivity extends ActionBarActivity {
         try {
             TaggingRequest myRequest = TaggingHttpClient.getInstance().createRequest();
             myRequest.fireTaggingRequest("clientID", "username", "phoneNum", "pi", "cg", "lp", "rf");
+        } catch (Exception e) {
+            Log.d("Exception", e.toString());
+        }
+    }
+
+    public void firePageview(View view) {
+        Log.d("debug", "in firePageview");
+        try {
+            TaggingRequest myRequest = TaggingHttpClient.getInstance().createRequest();
+            myRequest.firePageview("pi","cg","+541199999999");
         }
         catch(Exception e) {
             Log.d("Exception", e.toString());
